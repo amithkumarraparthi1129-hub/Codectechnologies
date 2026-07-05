@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AI FAQ Chatbot - CodeAlpha</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Poppins",Arial,sans-serif;
+}
+
+
+body{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#667eea,#764ba2);
+}
+
+
+.chat-container{
+
+    width:420px;
+    height:600px;
+    background:white;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 20px 50px rgba(0,0,0,0.3);
+
+}
+
+
+.header{
+
+    background:#4b0082;
+    color:white;
+    padding:20px;
+    text-align:center;
+    font-size:24px;
+    font-weight:bold;
+
+}
+
+
+
+.chat-box{
+
+    height:430px;
+    padding:15px;
+    overflow-y:auto;
+    background:#f4f4f4;
+
+}
+
+
+
+.message{
+
+    padding:12px;
+    margin:10px 0;
+    border-radius:15px;
+    max-width:80%;
+
+}
+
+
+.bot{
+
+    background:#ddd;
+    color:#333;
+
+}
+
+
+.user{
+
+    background:#667eea;
+    color:white;
+    margin-left:auto;
+
+}
+
+
+
+.input-area{
+
+    display:flex;
+    gap:10px;
+    padding:15px;
+
+}
+
+
+
+input{
+
+    flex:1;
+    padding:12px;
+    border-radius:20px;
+    border:1px solid gray;
+    outline:none;
+
+}
+
+
+
+button{
+
+    padding:12px 20px;
+    border:none;
+    border-radius:20px;
+    background:#4b0082;
+    color:white;
+    cursor:pointer;
+
+}
+
+
+
+button:hover{
+
+    background:#667eea;
+
+}
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="chat-container">
+
+
+<div class="header">
+
+🤖 AI FAQ Chatbot
+
+</div>
+
+
+
+<div class="chat-box" id="chatBox">
+
+
+<div class="message bot">
+
+Hello 👋<br>
+Ask me questions about our product.
+
+</div>
+
+
+</div>
+
+
+
+<div class="input-area">
+
+<input 
+type="text"
+id="userInput"
+placeholder="Ask your question..."
+onkeypress="enterKey(event)"
+>
+
+
+<button onclick="sendMessage()">
+
+Send
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<script>
+
+
+// FAQ DATASET
+
+
+const faqData=[
+
+{
+question:"what is your product",
+answer:"Our product is an AI based software solution that helps automate tasks."
+},
+
+{
+question:"how much does it cost",
+answer:"Our pricing depends on the selected plan. We provide affordable packages."
+},
+
+{
+question:"how can i contact support",
+answer:"You can contact support through email or our customer service portal."
+},
+
+{
+question:"do you provide free trial",
+answer:"Yes, we provide a free trial for new users."
+},
+
+{
+question:"what technologies are used",
+answer:"We use Artificial Intelligence, Machine Learning and NLP technologies."
+},
+
+{
+question:"how to create account",
+answer:"You can create an account by clicking the signup option."
+}
+
+];
+
+
+
+
+
+// TEXT PREPROCESSING (NLP)
+
+
+function preprocess(text){
+
+return text
+.toLowerCase()
+.replace(/[^\w\s]/gi,"")
+.split(" ")
+.filter(word=>word.length>2);
+
+}
+
+
+
+
+
+// COSINE SIMILARITY
+
+
+function cosineSimilarity(userWords,faqWords){
+
+
+let match=0;
+
+
+userWords.forEach(word=>{
+
+if(faqWords.includes(word)){
+
+match++;
+
+}
+
+});
+
+
+return match /
+Math.sqrt(userWords.length*faqWords.length);
+
+
+}
+
+
+
+
+
+// FIND BEST FAQ ANSWER
+
+
+function findAnswer(question){
+
+
+let userWords=preprocess(question);
+
+
+let highestScore=0;
+
+
+let answer=
+"Sorry, I couldn't understand your question.";
+
+
+
+faqData.forEach(item=>{
+
+
+let faqWords=
+preprocess(item.question);
+
+
+
+let score=
+cosineSimilarity(userWords,faqWords);
+
+
+
+if(score>highestScore){
+
+highestScore=score;
+
+answer=item.answer;
+
+}
+
+
+});
+
+
+
+if(highestScore<0.2){
+
+answer=
+"I don't have information about that. Please contact support.";
+
+}
+
+
+return answer;
+
+
+}
+
+
+
+
+
+
+
+// CHAT FUNCTION
+
+
+function sendMessage(){
+
+
+let input=
+document.getElementById("userInput");
+
+
+let question=
+input.value.trim();
+
+
+
+if(question==="")
+return;
+
+
+
+addMessage(question,"user");
+
+
+input.value="";
+
+
+
+setTimeout(()=>{
+
+
+let response=
+findAnswer(question);
+
+
+addMessage(response,"bot");
+
+
+},500);
+
+
+
+}
+
+
+
+
+
+function addMessage(text,type){
+
+
+let chat=
+document.getElementById("chatBox");
+
+
+
+let message=
+document.createElement("div");
+
+
+
+message.className=
+"message "+type;
+
+
+
+message.innerHTML=text;
+
+
+
+chat.appendChild(message);
+
+
+
+chat.scrollTop=
+chat.scrollHeight;
+
+
+}
+
+
+
+
+
+
+function enterKey(event){
+
+
+if(event.key==="Enter"){
+
+sendMessage();
+
+}
+
+
+}
+
+
+
+</script>
+
+
+</body>
+
+</html>
